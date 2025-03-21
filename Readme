@@ -1,0 +1,12 @@
+## How to run 
+
+1. Install python
+2. Install Django, using this link you can easily install django by refernce
+[django installnation](https://github.com/JUSAIR-JSR/CRUD_DJANGO-Beginner)
+
+3. open the project using terminal or vscode and Run the source code
+
+```
+ python manage.py runserver
+
+```
