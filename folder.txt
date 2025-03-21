@@ -1,0 +1,57 @@
+myproject/
+│
+├── myproject/
+│   ├── settings.py
+│   ├── urls.py
+│   ├── ...
+│
+├── shops/
+│   ├── models.py
+│   ├── views.py
+│   ├── urls.py
+│   ├── forms.py
+│   ├── templates/
+│   │   ├── shops/
+│   │   │   ├── dashboard.html
+│   │   │   ├── shop_profile.html
+│   │   │   ├── product_form.html
+│   │   │   ├── order_list.html
+│
+├── products/
+│   ├── models.py
+│   ├── views.py
+│   ├── urls.py
+│   ├── forms.py
+│   ├── templates/
+│   │   ├── products/
+│   │   │   ├── product_list.html
+│
+├── users/
+│   ├── models.py
+│   ├── views.py
+│   ├── urls.py
+│   ├── templates/
+│   │   ├── users/
+│   │   │   ├── dashboard.html
+│   │   │   ├── cart.html
+│   │   │   ├── order_history.html
+│
+├── cart/
+│   ├── models.py
+│   ├── views.py
+│   ├── urls.py
+│
+├── orders/
+│   ├── models.py
+│   ├── views.py
+│   ├── urls.py
+│
+├── static/
+│   ├── css/
+│   │   ├── styles.css
+│   ├── images/
+│
+├── templates/
+│   ├── base.html
+│
+├── manage.py

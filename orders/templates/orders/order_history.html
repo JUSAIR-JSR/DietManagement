@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Order History</h1>
+
+{% if orders.count == 0 %}
+<p>You have no orders.</p>
+{% else %}
+<table class="table">
+    <thead>
+        <tr>
+            <th>Order ID</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Total Price</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for order in orders %}
+        <tr>
+            <td>{{ order.id }}</td>
+            <td>{{ order.created_at }}</td>
+            <td>{{ order.status }}</td>
+            <td>${{ order.total_price }}</td>
+            <td>
+                <a href="{% url 'order_status' order.id %}" class="btn btn-primary btn-sm">View Details</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endif %}
+
+<a href="{% url 'customer_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Shop Dashboard</h1>
+<p>Welcome, {{ shop.shop_name }}!</p>
+<a href="{% url 'shop_logout' %}">logout</a>
+<h2>Your Products</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Price</th>
+            <th>Calories (per 100g)</th>
+            <th>Stock</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for product in products %}
+        <tr>
+            <td>{{ product.name }}</td>
+            <td>{{ product.description }}</td>
+            <td>${{ product.price }}</td>
+            <td>{{ product.calories_per_100g }} kcal</td>
+            <td>{{ product.stock }}</td>
+            <td>
+                <a href="{% url 'update_product' product.id %}" class="btn btn-warning btn-sm">Edit</a>
+                <a href="{% url 'delete_product' product.id %}" class="btn btn-danger btn-sm">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="{% url 'add_product' %}" class="btn btn-primary">Add Product</a>
+<a href="{% url 'shop_orders' %}" class="btn btn-info">View Orders</a>
+<a href="{% url 'shop_profile' %}" class="btn btn-secondary">Update Profile</a>
+{% endblock %}

@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Order Placed Successfully!</h1>
+<p>Thank you for your order. Your order ID is <strong>#{{ order.id }}</strong>.</p>
+<p>You can view your order status <a href="{% url 'order_status' order.id %}">here</a>.</p>
+<a href="{% url 'customer_dashboard' %}" class="btn btn-primary">Back to Dashboard</a>
+{% endblock %}
