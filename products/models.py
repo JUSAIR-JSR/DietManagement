@@ -1,6 +1,18 @@
 from django.db import models
 from shops.models import Shop
 
+class Category(models.Model):
+    name = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.name
+
+class Species(models.Model):
+    name = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.name
+
 class Product(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField()
@@ -11,6 +23,8 @@ class Product(models.Model):
     stock = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
+    species = models.ManyToManyField(Species, blank=True)  # ✅ Allow multiple species
 
     def __str__(self):
         return self.name

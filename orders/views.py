@@ -22,14 +22,18 @@ from .models import Order
 
 @login_required
 def update_order_status(request, order_id):
-    order = get_object_or_404(Order, id=order_id, shop__shop_owner=request.user)
+    # Fetch the order, ensuring it belongs to the logged-in shop owner
+    order = get_object_or_404(Order, id=order_id, outlet__shop_owner=request.user)
+    
     if request.method == 'POST':
+        # Update the order status
         new_status = request.POST.get('status')
         order.status = new_status
         order.save()
-        return redirect('shop_orders')
+        return redirect('shop_orders')  # Redirect to the shop orders page
+    
+    # Render the update status form
     return render(request, 'orders/update_status.html', {'order': order})
-
 
 from django.shortcuts import render
 
