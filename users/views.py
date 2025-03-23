@@ -10,6 +10,8 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
+
+from cart.models import Cart
 from .models import Customer
 
 def register(request):
@@ -93,12 +95,21 @@ from products.models import Product
 
 @login_required
 def shop_products(request, shop_id):
-    # Get the shop (outlet) by ID
     shop = get_object_or_404(Shop, id=shop_id)
-    
-    # Filter products by the outlet (shop)
     products = Product.objects.filter(outlet=shop)
     
-    return render(request, 'users/shop_products.html', {'shop': shop, 'products': products})
-
+    # Get or create the cart for the current user and shop
+    cart, created = Cart.objects.get_or_create(customer=request.user.customer, outlet=shop)
+    
+    # Calculate the percentage of calories filled
+    total_calories = cart.total_calories
+    calorie_limit = cart.calorie_limit
+    total_calories_percentage = (total_calories / calorie_limit) * 100 if calorie_limit > 0 else 0
+    
+    return render(request, 'users/shop_products.html', {
+        'shop': shop,
+        'products': products,
+        'cart': cart,
+        'total_calories_percentage': total_calories_percentage,
+    })
 

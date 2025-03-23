@@ -1,27 +1,167 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h1>{{ shop.shop_name }}</h1>
-<p><strong>Location:</strong> {{ shop.location }}</p>
-<p><strong>Address:</strong> {{ shop.address }}</p>
+<!-- Tailwind CSS CDN -->
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<!-- FontAwesome for Icons -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 
-<h2>Products</h2>
-<div class="row">
-    {% for product in products %}
-    <div class="col-md-4 mb-4">
-        <div class="card">
-            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
-            <div class="card-body">
-                <h5 class="card-title">{{ product.name }}</h5>
-                <p class="card-text">{{ product.description }}</p>
-                <p class="card-text">Price: ${{ product.price }}</p>
-                <p class="card-text">Calories: {{ product.calories_per_100g }} kcal</p>
-                <a href="{% url 'add_to_cart' product.id %}" class="btn btn-primary">Add to Cart</a>
+<style>
+    /* Custom CSS for Bucket Animation */
+    .bucket-fill {
+        transition: height 0.5s ease, background-color 0.5s ease;
+    }
+
+    /* Pulse Animation for Icons */
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+        100% { transform: scale(1); }
+    }
+
+    .pulse-animation {
+        animation: pulse 1.5s infinite;
+    }
+</style>
+
+<div class="flex flex-col md:flex-row gap-8 p-6">
+    <!-- Main Content (Products) -->
+    <div class="flex-1">
+        <h1 class="text-3xl font-bold mb-4">{{ shop.shop_name }}</h1>
+        <p class="text-gray-700"><strong>Location:</strong> {{ shop.location }}</p>
+        <p class="text-gray-700"><strong>Address:</strong> {{ shop.address }}</p>
+
+        <h2 class="text-2xl font-bold mt-8 mb-4">Products</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {% for product in products %}
+            <div class="bg-white shadow-lg rounded-lg overflow-hidden transform transition-all hover:scale-105">
+                <img src="{{ product.image.url }}" class="w-full h-48 object-cover" alt="{{ product.name }}">
+                <div class="p-4">
+                    <h5 class="text-xl font-semibold">{{ product.name }}</h5>
+                    <p class="text-gray-600">{{ product.description }}</p>
+                    <p class="text-gray-800">Price: ${{ product.price }}</p>
+                    <p class="text-gray-800">Calories: {{ product.calories_per_100g }} kcal</p>
+                    <div class="quantity-controls mt-2 flex items-center gap-2">
+                        <button class="decrease-btn bg-red-500 text-white px-3 py-1 rounded-full hover:bg-red-600 transition-all" data-product-id="{{ product.id }}">
+                            <i class="fas fa-minus"></i>
+                        </button>
+                        <span class="quantity text-lg font-bold" data-product-id="{{ product.id }}">0</span>
+                        <button class="increase-btn bg-green-500 text-white px-3 py-1 rounded-full hover:bg-green-600 transition-all" data-product-id="{{ product.id }}">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
+            {% endfor %}
         </div>
     </div>
-    {% endfor %}
+
+    <!-- Calorie Bucket (Sidebar) -->
+    <div class="w-full md:w-1/4 bg-gray-50 p-6 rounded-lg shadow-md">
+        <h3 class="text-2xl font-bold mb-4 flex items-center gap-2">
+            <i class="fas fa-weight-hanging text-green-500 pulse-animation"></i>
+            Calorie Bucket
+        </h3>
+        <div class="bucket relative w-full h-64 bg-gray-200 rounded-b-lg overflow-hidden border-4 border-gray-300">
+            <div class="bucket-fill absolute bottom-0 w-full bg-gradient-to-t from-green-400 to-green-600" id="bucket-fill" style="height: {{ cart.total_calories_percentage }}%;"></div>
+            <div class="bucket-text absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center text-gray-800 font-bold text-lg">
+                <span id="bucket-text">{{ cart.total_calories }} / 10000 kcal</span>
+            </div>
+        </div>
+        <p class="mt-4 text-gray-700 text-sm">Keep your calories under 10,000 kcal to place an order.</p>
+    </div>
 </div>
 
-<a href="{% url 'customer_dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+<!-- Back to Dashboard Button -->
+<div class="text-center mt-8">
+    <a href="{% url 'customer_dashboard' %}" class="inline-block bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition-all">
+        <i class="fas fa-arrow-left mr-2"></i> Back to Dashboard
+    </a>
+</div>
+
+<!-- jQuery for AJAX -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // Function to update the bucket
+        function updateBucket(totalCalories) {
+            const percentage = (totalCalories / 10000) * 100;  // Updated to 10,000 kcal
+            $("#bucket-fill").css("height", percentage + "%");
+            $("#bucket-text").text(totalCalories + " / 10000 kcal");
+
+            // Change bucket color based on calorie level
+            if (totalCalories > 8000) {
+                $("#bucket-fill").removeClass("from-green-400 to-green-600").addClass("from-yellow-400 to-yellow-600");
+            } else if (totalCalories > 10000) {
+                $("#bucket-fill").removeClass("from-green-400 to-green-600").addClass("from-red-400 to-red-600");
+            } else {
+                $("#bucket-fill").removeClass("from-yellow-400 to-yellow-600 from-red-400 to-red-600").addClass("from-green-400 to-green-600");
+            }
+        }
+
+        // Handle increase button click
+        $(".increase-btn").on("click", function () {
+            const productId = $(this).data("product-id");
+            const url = "{% url 'add_to_cart' 0 %}".replace("0", productId);
+
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: {
+                    csrfmiddlewaretoken: "{{ csrf_token }}",
+                    action: "increase"
+                },
+                success: function (response) {
+                    if (response.success) {
+                        // Update quantity display
+                        const quantityElement = $(`.quantity[data-product-id="${productId}"]`);
+                        const newQuantity = parseInt(quantityElement.text()) + 1;
+                        quantityElement.text(newQuantity);
+
+                        // Update bucket
+                        updateBucket(response.total_calories);
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function () {
+                    alert("An error occurred. Please try again.");
+                }
+            });
+        });
+
+        // Handle decrease button click
+        $(".decrease-btn").on("click", function () {
+            const productId = $(this).data("product-id");
+            const url = "{% url 'add_to_cart' 0 %}".replace("0", productId);
+
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: {
+                    csrfmiddlewaretoken: "{{ csrf_token }}",
+                    action: "decrease"
+                },
+                success: function (response) {
+                    if (response.success) {
+                        // Update quantity display
+                        const quantityElement = $(`.quantity[data-product-id="${productId}"]`);
+                        const newQuantity = parseInt(quantityElement.text()) - 1;
+                        if (newQuantity >= 0) {
+                            quantityElement.text(newQuantity);
+                        }
+
+                        // Update bucket
+                        updateBucket(response.total_calories);
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function () {
+                    alert("An error occurred. Please try again.");
+                }
+            });
+        });
+    });
+</script>
 {% endblock %}

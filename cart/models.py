@@ -4,8 +4,8 @@ from users.models import Customer
 
 class Cart(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    outlet = models.ForeignKey(Shop, on_delete=models.CASCADE)  # Each cart is tied to a specific outlet
-    calorie_limit = models.PositiveIntegerField(default=2000)  # Default calorie limit (can be customized)
+    outlet = models.ForeignKey(Shop, on_delete=models.CASCADE)
+    calorie_limit = models.PositiveIntegerField(default=10000)  # Updated to 10,000 kcal
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -25,6 +25,8 @@ class Cart(models.Model):
 
     def is_within_calorie_limit(self):
         return self.total_calories <= self.calorie_limit
+    
+    
 
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
