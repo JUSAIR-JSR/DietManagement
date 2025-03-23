@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<!-- Tailwind CSS CDN -->
+<!-- Include Tailwind CSS via CDN -->
 <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-<!-- FontAwesome for Icons -->
+<!-- Include FontAwesome for Premium Icons -->
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 
 <style>
@@ -22,61 +22,77 @@
     .pulse-animation {
         animation: pulse 1.5s infinite;
     }
+
+    /* Hover Effect for Product Cards */
+    .product-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
 </style>
 
-<div class="flex flex-col md:flex-row gap-8 p-6">
-    <!-- Main Content (Products) -->
-    <div class="flex-1">
-        <h1 class="text-3xl font-bold mb-4">{{ shop.shop_name }}</h1>
-        <p class="text-gray-700"><strong>Location:</strong> {{ shop.location }}</p>
-        <p class="text-gray-700"><strong>Address:</strong> {{ shop.address }}</p>
+<div class="min-h-screen bg-gradient-to-r from-gray-50 to-gray-100 p-8">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row gap-8">
+        <!-- Main Content (Products) -->
+        <div class="flex-1">
+            <!-- Shop Header -->
+            <div class="text-center mb-12">
+                <h1 class="text-4xl font-bold text-gray-800 mb-4">{{ shop.shop_name }}</h1>
+                <p class="text-gray-600">{{ shop.location }} | {{ shop.address }}</p>
+            </div>
 
-        <h2 class="text-2xl font-bold mt-8 mb-4">Products</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {% for product in products %}
-            <div class="bg-white shadow-lg rounded-lg overflow-hidden transform transition-all hover:scale-105">
-                <img src="{{ product.image.url }}" class="w-full h-48 object-cover" alt="{{ product.name }}">
-                <div class="p-4">
-                    <h5 class="text-xl font-semibold">{{ product.name }}</h5>
-                    <p class="text-gray-600">{{ product.description }}</p>
-                    <p class="text-gray-800">Price: ${{ product.price }}</p>
-                    <p class="text-gray-800">Calories: {{ product.calories_per_100g }} kcal</p>
-                    <div class="quantity-controls mt-2 flex items-center gap-2">
-                        <button class="decrease-btn bg-red-500 text-white px-3 py-1 rounded-full hover:bg-red-600 transition-all" data-product-id="{{ product.id }}">
-                            <i class="fas fa-minus"></i>
-                        </button>
-                        <span class="quantity text-lg font-bold" data-product-id="{{ product.id }}">0</span>
-                        <button class="increase-btn bg-green-500 text-white px-3 py-1 rounded-full hover:bg-green-600 transition-all" data-product-id="{{ product.id }}">
-                            <i class="fas fa-plus"></i>
-                        </button>
+            <!-- Products Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {% for product in products %}
+                <div class="product-card bg-white rounded-xl shadow-lg overflow-hidden transform transition-all hover:scale-105">
+                    <img src="{{ product.image.url }}" class="w-full h-56 object-cover" alt="{{ product.name }}">
+                    <div class="p-6">
+                        <h5 class="text-xl font-semibold text-gray-800 mb-2">{{ product.name }}</h5>
+                        <p class="text-gray-600 mb-4">{{ product.description }}</p>
+                        <div class="flex items-center justify-between mb-4">
+                            <p class="text-gray-800 font-medium">${{ product.price }}</p>
+                            <p class="text-gray-800 font-medium">{{ product.calories_per_100g }} kcal</p>
+                        </div>
+                        <div class="quantity-controls flex items-center gap-2">
+                            <button class="decrease-btn bg-red-100 text-red-600 px-3 py-1 rounded-full hover:bg-red-200 transition-all" data-product-id="{{ product.id }}">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <span class="quantity text-lg font-bold text-gray-800" data-product-id="{{ product.id }}">0</span>
+                            <button class="increase-btn bg-green-100 text-green-600 px-3 py-1 rounded-full hover:bg-green-200 transition-all" data-product-id="{{ product.id }}">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
+                {% endfor %}
             </div>
-            {% endfor %}
+        </div>
+
+        <!-- Calorie Bucket (Sidebar) -->
+        <div class="w-full md:w-1/4 bg-white p-6 rounded-xl shadow-lg">
+            <h3 class="text-2xl font-bold mb-4 flex items-center gap-2">
+                <i class="fas fa-weight-hanging text-green-500 pulse-animation"></i>
+                Calorie Bucket
+            </h3>
+            <div class="bucket relative w-full h-48 bg-gray-200 rounded-b-lg overflow-hidden rounded-b-3xl border-4 border-gray-200">
+                <div class="bucket-fill absolute bottom-0 w-full bg-gradient-to-t from-green-400 to-green-600" id="bucket-fill" style="height: {{ cart.total_calories_percentage }}%;"></div>
+                <div class="bucket-text absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center text-gray-800 font-bold text-lg">
+                    <span id="bucket-text">{{ cart.total_calories }} / 10000 kcal</span>
+                </div>
+            </div>
+            <p class="mt-4 text-gray-700 text-sm">Keep your calories under 10,000 kcal to place an order.</p>
         </div>
     </div>
 
-    <!-- Calorie Bucket (Sidebar) -->
-    <div class="w-full md:w-1/4 bg-gray-50 p-6 rounded-lg shadow-md">
-        <h3 class="text-2xl font-bold mb-4 flex items-center gap-2">
-            <i class="fas fa-weight-hanging text-green-500 pulse-animation"></i>
-            Calorie Bucket
-        </h3>
-        <div class="bucket relative w-full h-64 bg-gray-200 rounded-b-lg overflow-hidden border-4 border-gray-300">
-            <div class="bucket-fill absolute bottom-0 w-full bg-gradient-to-t from-green-400 to-green-600" id="bucket-fill" style="height: {{ cart.total_calories_percentage }}%;"></div>
-            <div class="bucket-text absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center text-gray-800 font-bold text-lg">
-                <span id="bucket-text">{{ cart.total_calories }} / 10000 kcal</span>
-            </div>
-        </div>
-        <p class="mt-4 text-gray-700 text-sm">Keep your calories under 10,000 kcal to place an order.</p>
+    <!-- Back to Dashboard Button -->
+    <div class="mt-8 text-center">
+        <a href="{% url 'customer_dashboard' %}" class="inline-block bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-all flex items-center justify-center gap-2">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
     </div>
-</div>
-
-<!-- Back to Dashboard Button -->
-<div class="text-center mt-8">
-    <a href="{% url 'customer_dashboard' %}" class="inline-block bg-gray-500 text-white px-6 py-2 rounded-lg hover:bg-gray-600 transition-all">
-        <i class="fas fa-arrow-left mr-2"></i> Back to Dashboard
-    </a>
 </div>
 
 <!-- jQuery for AJAX -->
